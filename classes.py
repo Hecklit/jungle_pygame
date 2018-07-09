@@ -6,35 +6,9 @@ import numpy as np
 from constants import *
 
 #classes for our game objects
-class Fist(pygame.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self) #call Sprite initializer
-        self.image, self.rect = load_image('walker.png', -1)
-        self.punching = 0
-
-    def update(self):
-        "move the fist based on the mouse position"
-        pos = pygame.mouse.get_pos()
-        self.rect.midtop = pos
-        if self.punching:
-            self.rect.move_ip(5, 10)
-
-    def punch(self, target):
-        "returns true if the fist collides with the target"
-        if not self.punching:
-            self.punching = 1
-            hitbox = self.rect.inflate(-5, -5)
-            return hitbox.colliderect(target.rect)
-
-    def unpunch(self):
-        "called to pull the fist back"
-        self.punching = 0
-
 class DataStore:
     def __init__(self):
         self.tile_imgs = [load_image(img_n, None) for img_n in IMG_NAMES]
-
 
 class Tile(pygame.sprite.Sprite):
     """moves a monkey critter across the screen. it can spin the
@@ -59,16 +33,27 @@ class Tile(pygame.sprite.Sprite):
             
 class Camera:
     """Manages the visible part of the world"""
-    def __init__(self, rw_pos, rw_w, rw_h, w, h, zoom):
-        self.rw_pos = np.array(rw_pos)
-        self.rw_dim = np.array([rw_w, rw_h])
+    def __init__(self, rw_pos, w, h, zoom):
+        self.rw_pos = np.array(rw_pos)-1
+        rw_w = int(np.ceil(w/(TILE_SIZE*zoom)))
+        rw_h = int(np.ceil(h/(TILE_SIZE*zoom)))
+        self.rw_dim = np.array([rw_w, rw_h])+2
+        print(self.rw_dim)
         self.w = w
         self.h = h
         self.zoom = zoom
 
+    def set_zoom(self, zoom):
+        if zoom < 0.6:
+            return
+        rw_w = int(np.ceil(self.w/(TILE_SIZE*zoom)))
+        rw_h = int(np.ceil(self.h/(TILE_SIZE*zoom)))
+        self.rw_dim = np.array([rw_w, rw_h])+2
+        self.zoom = zoom;
+
     def rw_to_camera(self, p):
         p = np.array(p)
-        return (p + self.rw_pos) * TILE_SIZE * self.zoom
+        return (p - self.rw_pos) * (TILE_SIZE-0.9) * self.zoom
 
 class World:
     """Main data structure to keep all infos about static world data
@@ -81,6 +66,7 @@ class World:
         self.tiles[:, :, 2] = np.random.choice(2, size=self.tiles.shape[:2])
 
     def get_flat_slice(self, sx, ex, sy, ey):
+        sx, ex, sy, ey = int(np.max([sx, 0])), int(ex), int(np.max([sy, 0])), int(ey)
         return self.tiles[sx:ex, sy:ey].reshape((-1, 3))
         
 

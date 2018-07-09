@@ -8,7 +8,7 @@ import os, pygame
 from pygame.locals import *
 from pygame.compat import geterror
 from utils import load_sound
-from classes import Fist, Tile, World, Camera, DataStore
+from classes import Tile, World, Camera, DataStore
 from constants import *
 import numpy as np
 
@@ -33,7 +33,7 @@ def main():
 #Create The Backgound
     background = pygame.Surface(screen.get_size())
     background = background.convert()
-    background.fill((250, 250, 250))
+    background.fill((125, 125, 125))
 
 #Put Text On The Background, Centered
     if pygame.font:
@@ -52,8 +52,8 @@ def main():
     # punch_sound = load_sound('punch.wav')
     data = DataStore()
     world = World(64, 64)
-    camera = Camera([0, 0], 6, 4, WIDTH, HEIGHT, 3)
-    buffered_world_sprites = pygame.sprite.LayeredUpdates(init_world_tiles(WIDTH, HEIGHT, TILE_SIZE, data))
+    camera = Camera([0.0, 0.0], WIDTH, HEIGHT, 3)
+    buffered_world_sprites = pygame.sprite.LayeredUpdates(init_world_tiles(WIDTH*2, HEIGHT*2, TILE_SIZE, data))
     displayed_world_sprites = pygame.sprite.LayeredUpdates([])
     allsprites = pygame.sprite.LayeredUpdates([])
 
@@ -72,7 +72,22 @@ def main():
                 pass
             elif event.type == MOUSEBUTTONUP:
                 pass
+            # elif event.type == MOUSEBUTTONDOWN and event.button == 4:
 
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_w]:
+            camera.rw_pos -= np.array([0, 0.1])*(10.0/camera.zoom)
+        if pressed[pygame.K_s]:
+            camera.rw_pos += np.array([0, 0.1])*(10.0/camera.zoom)
+        if pressed[pygame.K_a]:
+            camera.rw_pos -= np.array([0.1, 0])*(10.0/camera.zoom)
+        if pressed[pygame.K_d]:
+            camera.rw_pos += np.array([0.1, 0])*(10.0/camera.zoom)
+        if pressed[pygame.K_q]:
+            camera.set_zoom(camera.zoom+0.1)
+        if pressed[pygame.K_e]:
+            camera.set_zoom(camera.zoom-0.1)
+    
         # update world camera
         sx, sy = camera.rw_pos
         ex, ey = camera.rw_pos + camera.rw_dim
