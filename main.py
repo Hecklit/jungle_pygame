@@ -8,7 +8,7 @@ import os, pygame
 from pygame.locals import *
 from pygame.compat import geterror
 from utils import load_sound
-from classes import Tile, World, Camera, DataStore
+from classes import Tile, World, Camera, DataStore, Actor, Fighter
 from constants import *
 import numpy as np
 
@@ -55,7 +55,10 @@ def main():
     camera = Camera([0.0, 0.0], WIDTH, HEIGHT, 3)
     buffered_world_sprites = pygame.sprite.LayeredUpdates(init_world_tiles(WIDTH*2, HEIGHT*2, TILE_SIZE, data))
     displayed_world_sprites = pygame.sprite.LayeredUpdates([])
-    allsprites = pygame.sprite.LayeredUpdates([])
+
+    f_sprite = Actor([0,1], data)
+    f = Fighter([3, 3], 1, 1)
+    allsprites = pygame.sprite.LayeredUpdates([f_sprite])
 
 #Main Loop
     going = True
@@ -97,11 +100,13 @@ def main():
             camera_pos = camera.rw_to_camera(rw_tile[:2])
             sprite = buffered_world_sprites.get_sprite(0)
             sprite.rect.topleft = camera_pos
-            # print(camera_pos)
             sprite.set_tile(rw_tile[2])
             sprite.zoom(camera.zoom)
             buffered_world_sprites.remove(sprite)
             displayed_world_sprites.add(sprite)
+
+        f_sprite.rect.topleft = camera.rw_to_camera(f.pos)
+        f_sprite.zoom(camera.zoom)
 
         #Draw Everything
         screen.blit(background, (0, 0))

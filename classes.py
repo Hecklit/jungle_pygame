@@ -8,11 +8,11 @@ from constants import *
 #classes for our game objects
 class DataStore:
     def __init__(self):
-        self.tile_imgs = [load_image(img_n, None) for img_n in IMG_NAMES]
+        self.tile_imgs = [load_image(img_n, None) for img_n in TILE_IMG_NAMES]
+        self.actor_imgs = [load_image(img_n, -1) for img_n in ACTOR_IMG_NAMES]
 
 class Tile(pygame.sprite.Sprite):
-    """moves a monkey critter across the screen. it can spin the
-       monkey when it is punched."""
+    """Tile Sprite"""
     def __init__(self, pos, data):
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.data = data.tile_imgs
@@ -30,6 +30,24 @@ class Tile(pygame.sprite.Sprite):
 
     def set_tile(self, tt):
         self.tt = int(tt)
+
+class Actor(pygame.sprite.Sprite):
+    """Actor of this world"""
+    def __init__(self, pos, data):
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.data = data.actor_imgs
+        self.image, self.rect = self.data[0]
+        self.originals = self.image.copy();
+        self.rect.topleft = pos
+        self.at = 0
+
+    def zoom(self, zoom):
+        _, orig_rect = self.data[self.at]
+        self.image = pygame.transform.scale(self.data[self.at][0], (int(orig_rect.width*zoom), int(orig_rect.height*zoom)))
+        pos = self.rect.topleft
+        self.rect = self.image.get_rect()
+        self.rect.topleft = pos
+
             
 class Camera:
     """Manages the visible part of the world"""
@@ -69,4 +87,10 @@ class World:
         sx, ex, sy, ey = int(np.max([sx, 0])), int(ex), int(np.max([sy, 0])), int(ey)
         return self.tiles[sx:ex, sy:ey].reshape((-1, 3))
         
+class Fighter:
+    """Data class fighter"""
+    def __init__(self, pos, w, h):
+        self.pos = pos
+        self.w = w
+        self.h = h
 
