@@ -39,26 +39,23 @@ class DataStore:
 class Tile(pygame.sprite.Sprite):
     """moves a monkey critter across the screen. it can spin the
        monkey when it is punched."""
-    def __init__(self, pos):
+    def __init__(self, pos, data):
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
-        self.image, self.rect = load_image('stone.bmp', None)
+        self.data = data.tile_imgs
+        self.image, self.rect = data.tile_imgs[0]
         self.originals = self.image.copy();
-        # screen = pygame.display.get_surface()
-        # self.area = screen.get_rect()
         self.rect.topleft = pos
+        self.tt = 0
 
     def zoom(self, zoom):
-        orig_rect = self.original.get_rect()
-        self.image = pygame.transform.scale(self.original, (int(orig_rect.width*zoom), int(orig_rect.height*zoom)))
+        _, orig_rect = self.data[self.tt]
+        self.image = pygame.transform.scale(self.data[self.tt][0], (int(orig_rect.width*zoom), int(orig_rect.height*zoom)))
         pos = self.rect.topleft
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
 
     def set_tile(self, tt):
-        if tt == 0:
-            self.image, _ = load_image('sky.bmp', None)
-        else:
-            self.image, _ = load_image('stone.bmp', None)
+        self.tt = int(tt)
             
 class Camera:
     """Manages the visible part of the world"""

@@ -8,17 +8,17 @@ import os, pygame
 from pygame.locals import *
 from pygame.compat import geterror
 from utils import load_sound
-from classes import Fist, Tile, World, Camera
+from classes import Fist, Tile, World, Camera, DataStore
 from constants import *
 import numpy as np
 
 if not pygame.font: print ('Warning, fonts disabled')
 if not pygame.mixer: print ('Warning, sound disabled')
 
-def init_world_tiles(w, h, size):
+def init_world_tiles(w, h, size, data):
     tiles_per_width = int(np.ceil(w/size))
     tiles_per_height = int(np.ceil(h/size))
-    return [[Tile((x*size, y*size)) for x in range(tiles_per_width)] for y in range(tiles_per_height)]
+    return [[Tile((x*size, y*size), data) for x in range(tiles_per_width)] for y in range(tiles_per_height)]
 
 def main():
     """this function is called when the program starts.
@@ -50,9 +50,10 @@ def main():
     clock = pygame.time.Clock()
     # whiff_sound = load_sound('whiff.wav')
     # punch_sound = load_sound('punch.wav')
+    data = DataStore()
     world = World(64, 64)
     camera = Camera([0, 0], 6, 4, WIDTH, HEIGHT, 3)
-    buffered_world_sprites = pygame.sprite.LayeredUpdates(init_world_tiles(WIDTH, HEIGHT, TILE_SIZE))
+    buffered_world_sprites = pygame.sprite.LayeredUpdates(init_world_tiles(WIDTH, HEIGHT, TILE_SIZE, data))
     displayed_world_sprites = pygame.sprite.LayeredUpdates([])
     allsprites = pygame.sprite.LayeredUpdates([])
 
